@@ -3,6 +3,9 @@
 ### 1. Dane Autora
 - **Imię i Nazwisko:** Aleksandra Reja
 - **Grupa:** 6.7
+- **GitHub:** https://github.com/aleksandrareja/zad1
+- **DockerHub:** https://hub.docker.com/repository/docker/aleksandrareja/zad1/general
+
 
 ---
 
