@@ -35,6 +35,8 @@ docker build -t zad1:latest .
 
 docker run -d -p 8080:3000 --name weather-app zad1:latest
 
+![alt text](image.png)
+
 #### Pobranie informacji z logów
 
 docker logs weather-app
@@ -48,8 +50,6 @@ Aplikacja nasłuchuje na porcie: 3000
 docker history zad1:latest
 
 docker images zad1:latest
-
-Rozmiar obrazu raportowany przez polecenie docker images (106 MB) jest wyższy niż suma warstw systemowych (ok. 80 MB), co wynika z dołączenia do obrazu metadanych generowanych przez narzędzie Buildx. Realna waga warstw została zminimalizowana poprzez wybór dystrybucji Alpine oraz rezygnację z menedżerów pakietów npm/yarn.
 
 ### Sprawdzenie healthcheck
 
