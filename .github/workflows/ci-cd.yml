@@ -50,7 +50,7 @@ jobs:
           context: .
           load: true # Ładuje obraz lokalnie do demona Dockera (zamiast wysyłać do rejestru)
           tags: local-test-image:latest
-          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/zad1-cache:latest
+          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/zad2-cache:latest
 
       # 7. SKANOWANIE CVE (Trivy) - Blokuje potok, jeśli wykryje podatności CRITICAL lub HIGH
       - name: Run Trivy vulnerability scanner
@@ -71,7 +71,7 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/zad1:multiarch
-            ghcr.io/${{ github.repository_owner }}/zad1:latest
-          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/zad1-cache:latest
-          cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/zad1-cache:latest,mode=max
+            ghcr.io/${{ github.repository_owner }}/zad2:multiarch
+            ghcr.io/${{ github.repository_owner }}/zad2:latest
+          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/zad2-cache:latest
+          cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/zad2-cache:latest,mode=max
