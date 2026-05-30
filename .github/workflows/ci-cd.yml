@@ -4,29 +4,32 @@ on:
   push:
     branches: [ "main" ]
     tags:
-      - 'v*' 
+      - 'v*'
   pull_request:
     branches: [ "main" ]
-  workflow_dispatch: 
+  workflow_dispatch:
 
 permissions:
   contents: read
-  packages: write
+  packages: write #uprawnienia do zapisu w GitHub Container Registry (ghcr.io)
 
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
     steps:
+      #pobranie kodów źródłowych aplikacji
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      #logowanie do Docker Hub w celu składowania tam cache
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      #logowanie do docelowego rejestru GitHub (ghcr.io)
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -34,41 +37,45 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      #przygotowanie emulacji architektur (QEMU dla arm64)
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
+      #inicjalizacja Buildx
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      #pelne wsparcie cache dla etapu testowego
+      #budowanie lokalne na potrzeby testu CVE
       - name: Build local image for CVE scanning
         uses: docker/build-push-action@v6
         with:
-          context: .
+          context: . #budowa na podstawie lokalnego Dockerfile i kodów
           load: true 
           tags: local-test-image:latest
           cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/zad2-cache:latest
           cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/zad2-cache:latest,mode=max
 
+      #skaner CVE przerywający działanie potoku przy wykryciu zagrożeń HIGH lub CRITICAL
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: 'local-test-image:latest'
           format: 'table'
-          exit-code: '1'
+          exit-code: '1' #kod 1 zatrzymuje potok i blokuje przejście do następnego kroku
           ignore-unfixed: true
           vuln-type: 'os,library'
-          severity: 'CRITICAL,HIGH'
+          severity: 'CRITICAL,HIGH' #filtrowanie wysokich i krytycznych zagrożeń
 
-      #tagowanie dynamiczne (Semver lub latest)
+      #publikacja w ghcr.io (wykona się tylko, gdy krok wyżej zaliczy test CVE)
       - name: Build and push Multi-Arch Image to GHCR
         uses: docker/build-push-action@v6
         with:
           context: .
-          platforms: linux/amd64,linux/arm64
-          push: true
-          tags: |
+          platforms: linux/amd64,linux/arm64 #wsparcie dla obu architektur sprzętowych
+          push: true #pzesłanie do publicznego rejestru GitHub
+          tags: | #zastosowanie przyjętego schematu tagowania
             ghcr.io/${{ github.repository_owner }}/zad2:multiarch
             ghcr.io/${{ github.repository_owner }}/zad2:latest
+          #dane cache wysyłane i pobierane z Docker Hub w trybie registry (mode=max)
           cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/zad2-cache:latest
           cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/zad2-cache:latest,mode=max

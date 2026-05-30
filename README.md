@@ -29,6 +29,6 @@ Do realizacji testów bezpieczeństwa wybrano narzędzie Trivy od Aqua Security.
 * **Prostota i Bezpieczeństwo:** Trivy nie wymaga stałego połączenia kontenera z demonem Dockera ani wysyłania metadanych obrazu do chmury dostawcy, co upraszcza konfigurację i podnosi bezpieczeństwo danych.
 * **Automatyczne przerywanie potoku:** Dzięki parametrowi `exit-code: '1'`, potok zostaje natychmiast przerwany, jeżeli w obrazie znajdzie się chociaż jedna podatność o statusie `HIGH` lub `CRITICAL`.
 
-### 3. Realizacja wymagań technicznych w krokach:
-* **Wieloplatformowość (Multi-Arch):** Wykorzystanie akcji `docker/setup-qemu-action` i `docker/setup-buildx-action` emuluje środowisko `arm64`, umożliwiając natywne zbudowanie manifestu OCI dla obu platform równolegle.
+### 3. Realizacja wymagań technicznych:
+* **Wieloplatformowość (Multi-Arch):** Wykorzystanie akcji `docker/setup-qemu-action` i `docker/setup-buildx-action` emuluje środowisko `arm64`, umożliwiając zbudowanie manifestu OCI dla obu platform równolegle.
 * **Sterownik buildera:** Zastosowanie akcji `setup-buildx-action` pod spodem automatycznie inicjalizuje instancję buildera opartą na wymaganym sterowniku `docker-container`.
